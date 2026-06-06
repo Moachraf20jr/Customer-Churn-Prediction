@@ -1,0 +1,220 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Churn Predictor</title>
+  <script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<header>
+  <div class="header-content">
+    <div class="brand">
+      <div class="brand-icon">⚡</div>
+      <div>
+        <h1>Churn Predictor</h1>
+        <div id="model-badge">Loading model info...</div>
+      </div>
+    </div>
+    <div class="header-actions">
+      <div class="server-status">
+        <span class="dot" id="status-dot"></span>
+        <span id="status-text">Connecting</span>
+      </div>
+      <button id="theme-toggle">🌙</button>
+    </div>
+  </div>
+  <div class="tabs">
+    <button class="tab active" data-tab="overview">Overview</button>
+    <button class="tab" data-tab="analytics">Analytics</button>
+    <button class="tab" data-tab="predict">Predict</button>
+  </div>
+</header>
+
+<div id="loading-overlay" style="display:none">
+  <div class="spinner"></div>
+  <p>Loading model info...</p>
+</div>
+
+<div id="lightbox" class="lightbox" style="display:none">
+  <button id="lightbox-close">×</button>
+  <img id="lightbox-img" src="" alt="">
+  <div id="lightbox-label"></div>
+</div>
+
+<main>
+  <!-- Overview tab -->
+  <section id="tab-overview" class="tab-content active">
+    <div class="section-header">
+      <h2>Model Performance</h2>
+      <button id="refresh-metrics">Refresh</button>
+    </div>
+
+    <div id="metrics-cards"></div>
+
+    <div class="charts-grid">
+      <div class="chart-card">
+        <h3>Metrics</h3>
+        <div class="chart-body"><canvas id="metricsChart"></canvas></div>
+      </div>
+      <div class="chart-card">
+        <h3>Feature Importance</h3>
+        <div class="chart-body"><canvas id="importanceChart"></canvas></div>
+      </div>
+    </div>
+
+    <div class="feature-table-container">
+      <div class="feature-table-header">
+        <h3>Feature Importance</h3>
+        <span class="feature-count" id="feature-count"></span>
+      </div>
+      <table id="feature-table">
+        <thead><tr><th>Feature</th><th>Importance</th><th>Value</th></tr></thead>
+        <tbody></tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- Analytics tab -->
+  <section id="tab-analytics" class="tab-content">
+    <div class="section-header">
+      <h2>EDA Plots</h2>
+      <span style="font-size:11px;color:var(--text-muted)">Click image to enlarge</span>
+    </div>
+    <div class="plot-gallery" id="plot-gallery"></div>
+  </section>
+
+  <!-- Predict tab -->
+  <section id="tab-predict" class="tab-content">
+    <div class="predict-layout">
+      <div class="predict-left">
+        <div class="form-card">
+          <div class="form-card-header">
+            <h2>Customer Details</h2>
+          </div>
+
+          <div class="quick-actions">
+            <button class="quick-btn quick-btn-danger" data-preset="high-risk"><span class="quick-dot"></span>High Risk</button>
+            <button class="quick-btn quick-btn-warning" data-preset="medium-risk"><span class="quick-dot"></span>Medium Risk</button>
+            <button class="quick-btn quick-btn-success" data-preset="low-risk"><span class="quick-dot"></span>Low Risk</button>
+          </div>
+
+          <form id="predict-form">
+            <div class="form-row">
+              <div class="form-group">
+                <label>Age <span class="required">*</span></label>
+                <input type="number" name="Age" value="35" min="18" max="65" required>
+              </div>
+              <div class="form-group">
+                <label>Gender</label>
+                <select name="Gender">
+                  <option>Male</option>
+                  <option>Female</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Tenure (months) <span class="required">*</span></label>
+                <input type="number" name="Tenure" value="24" min="1" max="72" required>
+              </div>
+              <div class="form-group">
+                <label>Usage Frequency</label>
+                <input type="number" name="Usage Frequency" value="15" min="1" max="30" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Support Calls <span class="required">*</span></label>
+                <input type="number" name="Support Calls" value="2" min="0" max="15" required>
+              </div>
+              <div class="form-group">
+                <label>Payment Delay (days)</label>
+                <input type="number" name="Payment Delay" value="5" min="0" max="60" required>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Subscription Type</label>
+                <select name="Subscription Type">
+                  <option>Standard</option>
+                  <option>Basic</option>
+                  <option>Premium</option>
+                </select>
+              </div>
+              <div class="form-group">
+                <label>Contract Length</label>
+                <select name="Contract Length">
+                  <option>Monthly</option>
+                  <option>Quarterly</option>
+                  <option>Annual</option>
+                </select>
+              </div>
+            </div>
+
+            <div class="form-row">
+              <div class="form-group">
+                <label>Total Spend ($) <span class="required">*</span></label>
+                <input type="number" name="Total Spend" value="750" min="0" max="10000" required>
+              </div>
+              <div class="form-group">
+                <label>Last Interaction (days)</label>
+                <input type="number" name="Last Interaction" value="10" min="0" max="60" required>
+              </div>
+            </div>
+
+            <div class="form-actions">
+              <button type="submit">Predict Churn</button>
+            </div>
+          </form>
+        </div>
+      </div>
+
+      <div class="predict-right">
+        <div id="prediction-result" class="result-card" style="display:none">
+          <div class="result-header">
+            <h2>Result</h2>
+            <div>
+              <button class="btn-icon" id="export-result-btn" title="Export">⤓</button>
+              <button class="btn-icon" id="copy-result-btn" title="Copy">📋</button>
+            </div>
+          </div>
+          <div class="gauge-wrapper">
+            <div class="gauge">
+              <div class="gauge-body">
+                <div class="gauge-fill" id="gauge-fill"></div>
+                <div class="gauge-cover">
+                  <div class="gauge-value" id="gauge-value">0%</div>
+                  <div class="gauge-label">Risk</div>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div id="result-content"></div>
+          <button class="btn-secondary" id="reset-form-btn">New Prediction</button>
+        </div>
+
+        <div class="history-card">
+          <div class="history-header">
+            <h3>History</h3>
+            <span class="history-count" id="history-count">0</span>
+          </div>
+          <div class="history-list" id="history-list">
+            <div class="history-empty">No predictions yet.</div>
+          </div>
+          <button id="clear-history-btn">Clear History</button>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<script src="app.js"></script>
+</body>
+</html>

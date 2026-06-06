@@ -1,0 +1,46 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+*.so
+
+# Node
+node_modules/
+npm-debug.log*
+
+# Data (raw CSVs)
+data/*.csv
+
+# Models (trained .pkl files)
+models/*.pkl
+
+# Results (generated plots & metrics)
+results/plots/*.png
+results/metrics/*.csv
+
+# Jupyter checkpoints
+.ipynb_checkpoints/
+
+# Environment
+venv/
+.env
+.env.local
+.python-version
+
+# Testing
+.pytest_cache/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
